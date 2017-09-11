@@ -51,9 +51,9 @@ module RspecProfiling
     attr_reader :collector, :vcs
 
     def start_counting_queries
-      ActiveSupport::Notifications.subscribe("sql.active_record") do |name, start, finish, id, query|
-        @current_example.try(:log_query, query, start, finish)
-      end
+      #ActiveSupport::Notifications.subscribe("sql.active_record") do |name, start, finish, id, query|
+      #  @current_example.try(:log_query, query, start, finish)
+      #end
     end
 
     def start_counting_requests

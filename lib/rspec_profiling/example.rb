@@ -64,10 +64,10 @@ module RspecProfiling
     end
 
     def log_query(query, start, finish)
-      unless query[:sql] =~ IGNORED_QUERIES_PATTERN
-        counts[:query_count] += 1
-        counts[:query_time] += (finish - start)
-      end
+      #unless query[:sql] =~ IGNORED_QUERIES_PATTERN
+      #  counts[:query_count] += 1
+      #  counts[:query_time] += (finish - start)
+      #end
     end
 
     def log_request(request, start, finish)
