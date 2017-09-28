@@ -1,3 +1,4 @@
+require "active_support"
 require "active_support/core_ext"
 require "rspec_profiling/run"
 require "time"
