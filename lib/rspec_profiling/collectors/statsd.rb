@@ -50,12 +50,13 @@ module RspecProfiling
       def insert(attributes)
         hash = attributes.fetch(:commit_hash)
         testDesc = attributes.fetch(:description)
-        key = "#{hash}.#{testDesc}"
+        branch = attributes.fetch(:branch)
+        key = "#{branch}.#{hash}.#{testDesc}"
 
         self.statsd.batch do |b|
             b.timing("#{key}.process_time", attributes.fetch(:time))
-            b.count("#{key}.request_count", attributes.fetch(:request_count))
             b.timing("#{key}.request_time", attributes.fetch(:request_time))
+            b.count("#{key}.request_count", attributes.fetch(:request_count))
         end
       end
     end
