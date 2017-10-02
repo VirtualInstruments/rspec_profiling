@@ -23,24 +23,33 @@ module RspecProfiling
         request_time
       }
 
-      attr_accessor :statsd 
+      attr_accessor :statsd
+      attr_accessor :results
       
       def self.install
-        # no op
+        new.install
       end
 
       def self.uninstall
-        # no op
+        new.uninstall
       end
 
       def self.reset
-        # no op
+        @results = Array.new;
       end
 
+      def install
+        self.statsd.increment "profiling_live"
+      end
+
+      def uninstall
+        self.statsd.decrement 'profiling_live'
+      end
       def initialize
         RspecProfiling.config.statsd_host ||= '127.0.0.1';
         RspecProfiling.config.statsd_port ||= '8125';
-        
+        @results = Array.new;
+        @resultType = Struct.new(:description, :process_time)
         self.statsd = ::Statsd.new(RspecProfiling.config.statsd_host, RspecProfiling.config.statsd_port).tap do |sd|
           sd.namespace = "ldxe.#{NAMESPACE}.app"
         end
@@ -57,6 +66,8 @@ module RspecProfiling
             b.timing("#{key}.process_time", attributes.fetch(:time))
             b.timing("#{key}.request_time", attributes.fetch(:request_time))
             b.count("#{key}.request_count", attributes.fetch(:request_count))
+            result = @resultType.new(testDesc, attributes.fetch(:time))
+            @results.push(result)
         end
       end
     end

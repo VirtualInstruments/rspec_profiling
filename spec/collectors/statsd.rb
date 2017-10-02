@@ -30,7 +30,6 @@ module RspecProfiling
                 end
             
                 it "records a single result" do
-                    puts "helloo"
                     expect(collector.results.count).to eq 1
                 end
             end
