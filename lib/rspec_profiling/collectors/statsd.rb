@@ -4,7 +4,7 @@ module RspecProfiling
   module Collectors
     class Statsd
       #delegate :timing, :increment, :count, :gauge, :time, :batch, to: :statsd, allow_nil: true 
-      NAMESPACE = "rspec_profiling"
+      NAMESPACE = 'rspec_profiling'
       #Property used by CSV Collector, leaving it here
       #to maintain reference of available properties.
       HEADERS = %w{
@@ -23,8 +23,7 @@ module RspecProfiling
         request_time
       }
 
-      attr_accessor :statsd
-      attr_accessor :results
+      attr_accessor :statsd, :results
       
       def self.install
         new.install
@@ -50,10 +49,16 @@ module RspecProfiling
         RspecProfiling.config.statsd_port ||= '8125';
         @results = Array.new;
         @resultType = Struct.new(:description, :process_time)
-        self.statsd = ::Statsd.new(RspecProfiling.config.statsd_host, RspecProfiling.config.statsd_port).tap do |sd|
-          sd.namespace = "ldxe.#{NAMESPACE}.app"
-        end
+        @statsd = false
+      end
 
+      def statsd
+        if(!@statsd)
+          @statsd = ::Statsd.new(RspecProfiling.config.statsd_host, RspecProfiling.config.statsd_port).tap do |sd|
+            sd.namespace = "ldxe.#{NAMESPACE}.app"
+          end
+        end
+        @statsd
       end
 
       def insert(attributes)
