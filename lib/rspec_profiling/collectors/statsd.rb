@@ -65,7 +65,7 @@ module RspecProfiling
         hash = attributes.fetch(:commit_hash)
         testDesc = attributes.fetch(:description)
         branch = attributes.fetch(:branch)
-        key = "#{branch}.#{hash}.#{testDesc}"
+        key = "#{branch}.#{hash}.#{testDesc}".gsub("\n", "")
 
         self.statsd.batch do |b|
             b.timing("#{key}.process_time", attributes.fetch(:time))
