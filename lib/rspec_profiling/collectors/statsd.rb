@@ -62,7 +62,7 @@ module RspecProfiling
       end
 
       def insert(attributes)
-        hash = attributes.fetch(:commit_hash)
+        hash = attributes.fetch(:commit_hash)[0..7]
         testDesc = attributes.fetch(:description)
         branch = attributes.fetch(:branch)
         key = "#{branch}.#{hash}.#{testDesc}".gsub("\n", "")
