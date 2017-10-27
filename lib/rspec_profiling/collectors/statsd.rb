@@ -1,4 +1,8 @@
 require "statsd";
+require "logger";
+require "open3";
+
+
 
 module RspecProfiling
   module Collectors
@@ -23,7 +27,7 @@ module RspecProfiling
         request_time
       }
 
-      attr_accessor :statsd, :results
+      attr_accessor :statsd, :results, :logger
       
       def self.install
         new.install
@@ -33,27 +37,43 @@ module RspecProfiling
         new.uninstall
       end
 
+      def health(host, port)
+        `nc -vuzn #{host} #{port} 2>&1 > /dev/null`.include? 'open'
+      end
+
+      def healthCheck
+        if(self.health RspecProfiling.config.statsd_host, RspecProfiling.config.statsd_port) 
+          @logger.info('Green light for statsd client')
+        else
+          @logger.warn('RED LIGHT for statsd client')
+        end
+      end
+
       def self.reset
         @results = Array.new;
       end
 
       def install
-        self.statsd.increment "profiling_live"
+        self.statsd.increment 'profiling_live'
       end
 
       def uninstall
         self.statsd.decrement 'profiling_live'
       end
+
+
       def initialize
         RspecProfiling.config.statsd_host ||= '127.0.0.1';
         RspecProfiling.config.statsd_port ||= '8125';
         @results = Array.new;
         @resultType = Struct.new(:description, :process_time)
         @statsd = false
+        @logger = Logger.new(STDOUT)
       end
 
       def statsd
         if(!@statsd)
+          puts self.healthCheck
           @statsd = ::Statsd.new(RspecProfiling.config.statsd_host, RspecProfiling.config.statsd_port).tap do |sd|
             sd.namespace = "ldxe.#{NAMESPACE}.app"
           end
