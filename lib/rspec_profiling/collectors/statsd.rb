@@ -1,7 +1,5 @@
-require "statsd";
-require "logger";
-require "open3";
-
+require 'statsd';
+require 'logger';
 
 
 module RspecProfiling
@@ -83,14 +81,14 @@ module RspecProfiling
         hash = attributes.fetch(:commit_hash)[0..7]
         testDesc = attributes.fetch(:description)
         branch = attributes.fetch(:branch)
-        key = "#{branch}.#{hash}.#{testDesc}".gsub("\n", "")
+        key = "#{branch}.#{hash}.#{testDesc}".gsub("\n", '')
 
         self.statsd.batch do |b|
-            b.timing("#{key}.process_time", attributes.fetch(:time))
-            b.timing("#{key}.request_time", attributes.fetch(:request_time))
-            b.count("#{key}.request_count", attributes.fetch(:request_count))
-            result = @resultType.new(testDesc, attributes.fetch(:time))
-            @results.push(result)
+          b.timing("#{key}.process_time", attributes.fetch(:time))
+          b.timing("#{key}.request_time", attributes.fetch(:request_time))
+          b.count("#{key}.request_count", attributes.fetch(:request_count))
+          result = @resultType.new(testDesc, attributes.fetch(:time))
+          @results.push(result)
         end
       end
     end
