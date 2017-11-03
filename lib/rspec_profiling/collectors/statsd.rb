@@ -38,47 +38,45 @@ module RspecProfiling
       end
 
       def health(host, port)
-        `nc -vuzn #{host} #{port} 2>&1 > /dev/null`.include? 'open'
+        `nc -vuzn #{host} #{port} 2>&1 > /dev/null`.include?('open')
       end
 
-      def healthCheck
-        if(self.health RspecProfiling.config.statsd_host, RspecProfiling.config.statsd_port) 
-          @logger.info('Green light for statsd client')
+      def health_check
+        if self.health(RspecProfiling.config.statsd_host, RspecProfiling.config.statsd_port) 
+          @logger.info("rspec_profiling connection test to statsd UDP socket at [#{RspecProfiling.config.statsd.statsd_host}:#{RspecProfiling.config.statsd_port}] is successful.")
         else
-          @logger.warn('RED LIGHT for statsd client')
+          @logger.warn("rspec_profiling cannot connect to statsd UDP socket at [#{RspecProfiling.config.statsd.statsd_host}:#{RspecProfiling.config.statsd_port}]. You will not see profiling results.")
         end
       end
 
       def self.reset
-        @results = Array.new;
+        @results = Array.new
       end
 
       def install
-        self.statsd.increment 'profiling_live'
+        self.statsd.increment('profiling_live')
       end
 
       def uninstall
-        self.statsd.decrement 'profiling_live'
+        self.statsd.decrement('profiling_live')
       end
 
 
       def initialize
-        RspecProfiling.config.statsd_host ||= '127.0.0.1';
-        RspecProfiling.config.statsd_port ||= '8125';
-        @results = Array.new;
+        RspecProfiling.config.statsd_host ||= '127.0.0.1'
+        RspecProfiling.config.statsd_port ||= '8125'
+        @results = Array.new
         @resultType = Struct.new(:description, :process_time)
-        @statsd = false
+        @statsd = nil
         @logger = Logger.new(STDOUT)
       end
 
       def statsd
-        if(!@statsd)
-          puts self.healthCheck
-          @statsd = ::Statsd.new(RspecProfiling.config.statsd_host, RspecProfiling.config.statsd_port).tap do |sd|
-            sd.namespace = "ldxe.#{NAMESPACE}.app"
-          end
+        return @statsd unless @statsd.nil?
+        self.health_check
+        @statsd = ::Statsd.new(RspecProfiling.config.statsd_host, RspecProfiling.config.statsd_port).tap do |sd|
+          sd.namespace = "ldxe.#{NAMESPACE}.app"
         end
-        @statsd
       end
 
       def insert(attributes)
