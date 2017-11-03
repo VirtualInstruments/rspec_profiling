@@ -2,8 +2,6 @@ require "rspec_profiling/example"
 require "rspec_profiling/vcs/git"
 require "rspec_profiling/vcs/svn"
 require "rspec_profiling/vcs/git_svn"
-require "rspec_profiling/collectors/sql"
-require "rspec_profiling/collectors/psql"
 require "rspec_profiling/collectors/csv"
 
 module RspecProfiling
@@ -51,9 +49,9 @@ module RspecProfiling
     attr_reader :collector, :vcs
 
     def start_counting_queries
-      ActiveSupport::Notifications.subscribe("sql.active_record") do |name, start, finish, id, query|
-        @current_example.try(:log_query, query, start, finish)
-      end
+      #ActiveSupport::Notifications.subscribe("sql.active_record") do |name, start, finish, id, query|
+      #  @current_example.try(:log_query, query, start, finish)
+      #end
     end
 
     def start_counting_requests
