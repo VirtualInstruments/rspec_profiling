@@ -41,9 +41,9 @@ module RspecProfiling
 
       def health_check
         if self.health(RspecProfiling.config.statsd_host, RspecProfiling.config.statsd_port) 
-          @logger.info("rspec_profiling connection test to statsd UDP socket at [#{RspecProfiling.config.statsd.statsd_host}:#{RspecProfiling.config.statsd_port}] is successful.")
+          @logger.info("rspec_profiling connection test to statsd UDP socket at [#{RspecProfiling.config.statsd_host}:#{RspecProfiling.config.statsd_port}] is successful.")
         else
-          @logger.warn("rspec_profiling cannot connect to statsd UDP socket at [#{RspecProfiling.config.statsd.statsd_host}:#{RspecProfiling.config.statsd_port}]. You will not see profiling results.")
+          @logger.warn("rspec_profiling cannot connect to statsd UDP socket at [#{RspecProfiling.config.statsd_host}:#{RspecProfiling.config.statsd_port}]. You will not see profiling results.")
         end
       end
 
