@@ -32,6 +32,16 @@ module RspecProfiling
         it 'records a single result' do
           expect(collector.results.count).to eq 1
         end
+
+        it 'Converts test description to 8 character hash' do
+          str = collector.formatDesc('test')
+          expect(str.length).to eq(8)
+        end
+
+        it 'Converts file path to use dot separator over forward slash' do 
+          str = collector.formatFile('/staas/spec/test/some_test.rb')
+          expect(str.include? '/').to be false
+        end
       end
     end
   end

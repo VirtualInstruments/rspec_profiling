@@ -1,5 +1,6 @@
 require 'statsd';
 require 'logger';
+require 'digest';
 
 
 module RspecProfiling
@@ -76,18 +77,27 @@ module RspecProfiling
           sd.namespace = "ldxe.#{NAMESPACE}.app"
         end
       end
+      
+      def formatDesc(description)
+        ::Digest::SHA1.hexdigest(description)[8..15]
+      end
+
+      def formatFile(path) 
+        path.gsub('/', '.').gsub(/(\.rb$|^\.)/, '')
+      end
 
       def insert(attributes)
         hash = attributes.fetch(:commit_hash)[0..7]
-        testDesc = attributes.fetch(:description)
+        stamp = formatDesc(attributes.fetch(:description))
+        path = formatFile(attributes.fetch(:file))
         branch = attributes.fetch(:branch)
-        key = "#{branch}.#{hash}.#{testDesc}".gsub("\n", '')
+        key = "#{branch}.#{hash}.#{path}.#{stamp}".gsub("\n", '')
 
         self.statsd.batch do |b|
           b.timing("#{key}.process_time", attributes.fetch(:time))
           b.timing("#{key}.request_time", attributes.fetch(:request_time))
           b.count("#{key}.request_count", attributes.fetch(:request_count))
-          result = @resultType.new(testDesc, attributes.fetch(:time))
+          result = @resultType.new(key, attributes.fetch(:time))
           @results.push(result)
         end
       end
