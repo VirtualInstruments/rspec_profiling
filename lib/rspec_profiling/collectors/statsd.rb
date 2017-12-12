@@ -83,7 +83,7 @@ module RspecProfiling
       end
 
       def formatFile(path) 
-        path.gsub('/', '.').gsub(/\.rb$|^\./, '')
+        path.gsub('/', '.').gsub(/\.rb$|^\.[^.]*\./, '')
       end
 
       def insert(attributes)

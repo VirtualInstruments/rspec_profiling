@@ -36,14 +36,15 @@ module RspecProfiling
         it 'Converts test description to 8 character hash' do
           small = collector.formatDesc('test')
           expect(small.length).to eq(8)
-
+          expect(small).to eq('ccb19ba6')
           big = collector.formatDesc('test more strings with spaces_and_underscores')
           expect(big.length).to eq(8)
+          expect(big).to eq('a6bb61fe')
         end
 
         it 'Converts file path to use dot separator over forward slash' do 
-          str = collector.formatFile('/staas/spec/test/some_test.rb')
-          expect(str).to eq 'staas.spec.test.some_test'
+          str = collector.formatFile('/spec/test/some_test.rb')
+          expect(str).to eq 'test.some_test'
         end
       end
     end
