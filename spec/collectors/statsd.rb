@@ -33,12 +33,14 @@ module RspecProfiling
           expect(collector.results.count).to eq 1
         end
 
-        it 'Converts test description to 8 character hash' do
+        it 'Converts small description to 8 character hash' do
           small = collector.formatDesc('test')
           expect(small.length).to eq(8)
           expect(small).to eq('ccb19ba6')
+        end
+
+        it 'Converts large description to 8 character hash' do 
           big = collector.formatDesc('test more strings with spaces_and_underscores')
-          expect(big.length).to eq(8)
           expect(big).to eq('a6bb61fe')
         end
 
