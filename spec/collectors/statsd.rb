@@ -32,6 +32,22 @@ module RspecProfiling
         it 'records a single result' do
           expect(collector.results.count).to eq 1
         end
+
+        it 'Converts small description to 8 character hash' do
+          small = collector.formatDesc('test')
+          expect(small.length).to eq(8)
+          expect(small).to eq('ccb19ba6')
+        end
+
+        it 'Converts large description to 8 character hash' do 
+          big = collector.formatDesc('test more strings with spaces_and_underscores')
+          expect(big).to eq('a6bb61fe')
+        end
+
+        it 'Converts file path to use dot separator over forward slash' do 
+          str = collector.formatFile('/spec/test/some_test.rb')
+          expect(str).to eq 'test.some_test'
+        end
       end
     end
   end
