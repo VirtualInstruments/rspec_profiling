@@ -37,7 +37,7 @@ module RspecProfiling
       end
 
       def health(host, port)
-        flags = host =~ /([0-9]{1,3}\.?){4}/ ? '-vuzn' : '-vuz'
+        flags = host =~ /^([0-9]{1,3}\.){3}[0-9]{1,3}$/ ? '-vuzn' : '-vuz'
         result = `nc #{flags} #{host} #{port} 2>&1 > /dev/null`
         result =~ /open|succe(ss|eded)/
       end
