@@ -62,7 +62,6 @@ module RspecProfiling
         self.statsd.decrement('profiling_live')
       end
 
-
       def initialize
         RspecProfiling.config.statsd_host ||= '127.0.0.1'
         RspecProfiling.config.statsd_port ||= '8125'
@@ -81,7 +80,7 @@ module RspecProfiling
         end
       end
       
-      def formatDesc(description)
+      def format_desc(description)
         ::Digest::SHA1.hexdigest(description)[8..15]
       end
 
@@ -94,10 +93,58 @@ module RspecProfiling
         return str
       end
 
+      def build_stamp(desc, line_number)
+        hash_desc = format_desc(desc)
+        readable_short = format_readable_short(desc)
+        "#{line_number}_#{hash_desc}_#{readable_short}"
+      end
+
+      def format_readable_short(description) 
+        result = description.split(' ')
+        if result.length > 3
+          #Look for larger words to avoid prepositions and articles.
+          selected = result.select { |short| short.length > 3 }
+          #If this results in less than 3 words then use the original array.
+          selected = selected.length >= 3 ? selected : result
+          #Shorten to the last 3
+          result = shorten_array(selected, 3)
+        end
+        return result.join('_')
+      end
+
+      def shorten_array(arr, max)
+        max = arr.length if arr.length < max
+        arr[-max..-1] 
+      end
+
+      def build_stamp(desc, line_number)
+        hash_desc = format_desc(desc)
+        readable_short = format_readable_short(desc)
+        "#{line_number}_#{hash_desc}_#{readable_short}"
+      end
+
+      def format_readable_short(description) 
+        result = description.split(' ')
+        if result.length > 3
+          #Look for larger words to avoid prepositions and articles.
+          selected = result.select { |short| short.length > 3 }
+          #If this results in less than 3 words then use the original array.
+          selected = selected.length >= 3 ? selected : result
+          #Shorten to the last 3
+          result = shorten_array(selected, 3)
+        end
+        return result.join('_')
+      end
+
+      def shorten_array(arr, max)
+        max = arr.length if arr.length < max
+        arr[-max..-1] 
+      end
+
       def insert(attributes)
         hash = attributes.fetch(:commit_hash)[0..7]
-        stamp = formatDesc(attributes.fetch(:description))
-        path = format_file(attributes.fetch(:file), RspecProfiling.config.statsd_max_depth)
+        stamp = build_stamp(attributes.fetch(:description), attributes.fetch(:line_number))
+        path = format_file(attributes.fetch(:file))
         branch = attributes.fetch(:branch)
         key = "#{branch}.#{hash}.#{path}.#{stamp}".gsub("\n", '')
 

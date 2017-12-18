@@ -34,13 +34,13 @@ module RspecProfiling
         end
 
         it 'Converts small description to 8 character hash' do
-          small = collector.formatDesc('test')
+          small = collector.format_desc('test')
           expect(small.length).to eq(8)
           expect(small).to eq('ccb19ba6')
         end
 
         it 'Converts large description to 8 character hash' do 
-          big = collector.formatDesc('test more strings with spaces_and_underscores')
+          big = collector.format_desc('test more strings with spaces_and_underscores')
           expect(big).to eq('a6bb61fe')
         end
 
@@ -57,6 +57,21 @@ module RspecProfiling
         it 'Correctly uses max depth parameter to bottom tier' do
           str = collector.format_file('/spec/test/shared/model/lib/controller/bulk_action.rb', 4)
           expect(str).to eq 'test.shared.model.lib.bulk_action'
+        end
+        
+        it 'Creates a readable stamp from a long string' do
+          str = collector.build_stamp('API There are long strings in the test description where it can be really length however we need a small but unique name', 101)
+          expect(str).to eq '101_de72bdae_small_unique_name'
+        end
+
+        it 'Creates a readable stamp from a single word' do
+          str = collector.build_stamp('API', 101)
+          expect(str).to eq '101_0fbef1b4_API'
+        end
+
+        it 'Creates a readable stamp from a three word sentence' do
+          str = collector.build_stamp('There be dragons', 101)
+          expect(str).to eq '101_0de17114_There_be_dragons'
         end
       end
     end
