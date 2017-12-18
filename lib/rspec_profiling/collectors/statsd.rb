@@ -66,6 +66,7 @@ module RspecProfiling
       def initialize
         RspecProfiling.config.statsd_host ||= '127.0.0.1'
         RspecProfiling.config.statsd_port ||= '8125'
+        RspecProfiling.config.statsd_max_depth ||= 0
         @results = Array.new
         @resultType = Struct.new(:description, :process_time)
         @statsd = nil
@@ -84,14 +85,19 @@ module RspecProfiling
         ::Digest::SHA1.hexdigest(description)[8..15]
       end
 
-      def formatFile(path) 
-        path.gsub('/', '.').gsub(/\.rb$|^\.[^.]*\./, '')
+      def format_file(path, max = 0) 
+        str = path.gsub('/', '.').gsub(/\.rb$|^\.[^.]*\./, '')
+        if max > 0
+          parts = str.split('.')
+          str = (parts[0..max-1] << parts[-1]).join('.')
+        end
+        return str
       end
 
       def insert(attributes)
         hash = attributes.fetch(:commit_hash)[0..7]
         stamp = formatDesc(attributes.fetch(:description))
-        path = formatFile(attributes.fetch(:file))
+        path = format_file(attributes.fetch(:file), RspecProfiling.config.statsd_max_depth)
         branch = attributes.fetch(:branch)
         key = "#{branch}.#{hash}.#{path}.#{stamp}".gsub("\n", '')
 

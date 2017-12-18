@@ -45,8 +45,18 @@ module RspecProfiling
         end
 
         it 'Converts file path to use dot separator over forward slash' do 
-          str = collector.formatFile('/spec/test/some_test.rb')
+          str = collector.format_file('/spec/test/some_test.rb')
           expect(str).to eq 'test.some_test'
+        end
+
+        it 'Correctly uses the max depth parameter to top tier' do 
+          str = collector.format_file('/spec/test/shared/model/lib/controller/bulk_action.rb', 1)
+          expect(str).to eq 'test.bulk_action'
+        end
+
+        it 'Correctly uses max depth parameter to bottom tier' do
+          str = collector.format_file('/spec/test/shared/model/lib/controller/bulk_action.rb', 4)
+          expect(str).to eq 'test.shared.model.lib.bulk_action'
         end
       end
     end
