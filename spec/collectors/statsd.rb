@@ -15,7 +15,7 @@ module RspecProfiling
           collector.insert({
             branch: 'master',
             commit_hash: 'ABC123',
-            date: 'Thu Dec 18 12:00:00 2012',
+            date: Time.new,
             file: '/some/file.rb',
             line_number: 10,
             description: 'Some spec',
