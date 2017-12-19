@@ -97,9 +97,8 @@ module RspecProfiling
         return str
       end
 
-      def format_date(date_str)
-        Date.strptime(date_str, DATE_FORMAT_INPUT)
-            .strftime(DATE_FORMAT_OUTPUT)
+      def format_date(date)
+        date.strftime(DATE_FORMAT_OUTPUT)
       end
 
       def build_stamp(desc, line_number)
