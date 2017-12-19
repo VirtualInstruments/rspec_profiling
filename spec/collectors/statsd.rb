@@ -73,6 +73,11 @@ module RspecProfiling
           str = collector.build_stamp('There be dragons', 101)
           expect(str).to eq '101_0de17114_There_be_dragons'
         end
+
+        it 'Prefixes git commit hash with commit date' do
+          result = collector.results.first.description.match(/\d{8}T\d{6}/)
+          expect(result).not_to eq nil
+        end
       end
     end
   end

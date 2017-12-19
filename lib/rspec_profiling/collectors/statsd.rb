@@ -8,6 +8,9 @@ module RspecProfiling
     class Statsd
       #delegate :timing, :increment, :count, :gauge, :time, :batch, to: :statsd, allow_nil: true 
       NAMESPACE = 'rspec_profiling'
+
+      DATE_FORMAT_INPUT = '%a %b %d %H:%M:%S %Y'
+      DATE_FORMAT_OUTPUT = '%Y%m%dT%H%M%S'
       #Property used by CSV Collector, leaving it here
       #to maintain reference of available properties.
       HEADERS = %w{
@@ -93,6 +96,11 @@ module RspecProfiling
         return str
       end
 
+      def format_date(date_str)
+        Date.strptime(date_str, DATE_FORMAT_INPUT)
+            .strftime(DATE_FORMAT_OUTPUT)
+      end
+
       def build_stamp(desc, line_number)
         hash_desc = format_desc(desc)
         readable_short = format_readable_short(desc)
@@ -146,7 +154,8 @@ module RspecProfiling
         stamp = build_stamp(attributes.fetch(:description), attributes.fetch(:line_number))
         path = format_file(attributes.fetch(:file))
         branch = attributes.fetch(:branch)
-        key = "#{branch}.#{hash}.#{path}.#{stamp}".gsub("\n", '')
+        commit_date = format_date(attributes.fetch(:date))
+        key = "#{branch}.#{commit_date}_#{hash}.#{path}.#{stamp}".gsub("\n", '')
 
         self.statsd.batch do |b|
           b.timing("#{key}.process_time", attributes.fetch(:time))
