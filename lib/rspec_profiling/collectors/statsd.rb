@@ -69,6 +69,7 @@ module RspecProfiling
         RspecProfiling.config.statsd_host ||= '127.0.0.1'
         RspecProfiling.config.statsd_port ||= '8125'
         RspecProfiling.config.statsd_max_depth ||= 0
+        RspecProfiling.config.statsd_protocol ||= :udp
         @results = Array.new
         @resultType = Struct.new(:description, :process_time)
         @statsd = nil
@@ -78,7 +79,7 @@ module RspecProfiling
       def statsd
         return @statsd unless @statsd.nil?
         self.health_check
-        @statsd = ::Statsd.new(RspecProfiling.config.statsd_host, RspecProfiling.config.statsd_port).tap do |sd|
+        @statsd = ::Statsd.new(RspecProfiling.config.statsd_host, RspecProfiling.config.statsd_port, RspecProfiling.config.statsd_protocol).tap do |sd|
           sd.namespace = "ldxe.#{NAMESPACE}.app"
         end
       end
