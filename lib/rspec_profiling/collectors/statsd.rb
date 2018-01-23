@@ -6,11 +6,8 @@ require 'digest';
 module RspecProfiling
   module Collectors
     class Statsd
-      #delegate :timing, :increment, :count, :gauge, :time, :batch, to: :statsd, allow_nil: true 
       NAMESPACE = 'rspec_profiling'
 
-      DATE_FORMAT_INPUT = '%a %b %d %H:%M:%S %Y'
-      DATE_FORMAT_OUTPUT = '%Y%m%dT%H%M%S'
       #Property used by CSV Collector, leaving it here
       #to maintain reference of available properties.
       HEADERS = %w{
@@ -84,7 +81,7 @@ module RspecProfiling
         return @statsd unless @statsd.nil?
         self.health_check
         @statsd = ::Statsd.new(RspecProfiling.config.statsd_host, RspecProfiling.config.statsd_port, RspecProfiling.config.statsd_protocol).tap do |sd|
-          sd.namespace = "ldxe.#{NAMESPACE}.app"
+          sd.namespace = NAMESPACE
         end
       end
       
@@ -101,27 +98,9 @@ module RspecProfiling
         return str
       end
 
-      def format_date(date)
-        date.strftime(DATE_FORMAT_OUTPUT)
-      end
-
       def build_stamp(desc, line_number)
-        hash_desc = format_desc(desc)
         readable_short = format_readable_short(desc)
-        "#{line_number}_#{hash_desc}_#{readable_short}"
-      end
-
-      def format_readable_short(description) 
-        result = description.split(' ')
-        if result.length > 3
-          #Look for larger words to avoid prepositions and articles.
-          selected = result.select { |short| short.length > 3 }
-          #If this results in less than 3 words then use the original array.
-          selected = selected.length >= 3 ? selected : result
-          #Shorten to the last 3
-          result = shorten_array(selected, 3)
-        end
-        return result.join('_')
+        "#{line_number}_#{readable_short}"
       end
 
       def shorten_array(arr, max)
@@ -129,8 +108,8 @@ module RspecProfiling
         arr[-max..-1] 
       end
 
-      def format_readable_short(description) 
-        result = description.split(' ')
+      def format_readable_short(description)
+        result = description.gsub(/_|\\|\/|\./, ' ').split(' ')
         if result.length > 3
           #Look for larger words to avoid prepositions and articles.
           selected = result.select { |short| short.length > 3 }
@@ -150,10 +129,9 @@ module RspecProfiling
       def insert(attributes)
         hash = attributes.fetch(:commit_hash)[0..7]
         stamp = build_stamp(attributes.fetch(:description), attributes.fetch(:line_number))
-        path = format_file(attributes.fetch(:file))
+        path = format_file(attributes.fetch(:file), RspecProfiling.config.statsd_max_depth)
         branch = attributes.fetch(:branch)
-        commit_date = format_date(attributes.fetch(:date))
-        key = "#{branch}.#{commit_date}_#{hash}.#{path}.#{stamp}".gsub("\n", '')
+        key = "#{branch}.#{path}.#{stamp}".gsub("\n", '')
 
         self.statsd.batch do |b|
           b.timing("#{key}.process_time", attributes.fetch(:time))
