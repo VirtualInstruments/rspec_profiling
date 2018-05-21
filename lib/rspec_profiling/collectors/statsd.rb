@@ -1,6 +1,5 @@
 require 'statsd';
 require 'logger';
-require 'digest';
 
 
 module RspecProfiling
@@ -85,10 +84,6 @@ module RspecProfiling
         end
       end
       
-      def format_desc(description)
-        ::Digest::SHA1.hexdigest(description)[8..15]
-      end
-
       def format_file(path, max = 0) 
         str = path.gsub('/', '.').gsub(/\.rb$|^\.[^.]*\./, '')
         if max > 0
